@@ -642,6 +642,7 @@ module.exports = createReactClass({
             <AuthPage>
                 <AuthHeader />
                 <AuthBody>
+                    <h2>My custom component</h2>
                     <h2>
                         {_t('Sign in')}
                         {loader}
