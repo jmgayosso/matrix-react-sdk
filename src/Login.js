@@ -113,6 +113,7 @@ export default class Login {
             initial_device_display_name: this._defaultDeviceDisplayName,
         };
 
+        
         const tryFallbackHs = (originalError) => {
             return sendLoginRequest(
                 self._fallbackHsUrl, this._isUrl, 'm.login.password', loginParams,
@@ -122,6 +123,9 @@ export default class Login {
                 throw originalError;
             });
         };
+
+        console.log('URL TO LOGIN', this._hsUrl);
+        console.log('PARAMS TO LOGIN', loginParams);
 
         let originalLoginError = null;
         return sendLoginRequest(
@@ -175,6 +179,7 @@ export async function sendLoginRequest(hsUrl, isUrl, loginType, loginParams) {
     });
 
     const data = await client.login(loginType, loginParams);
+    console.log('DATA LOGIN RESPONSE', data);
 
     const wellknown = data.well_known;
     if (wellknown) {

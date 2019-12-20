@@ -176,11 +176,13 @@ module.exports = createReactClass({
             loginIncorrect: false,
         });
 
+        console.log('Logeando Logica');
         this._loginLogic.loginViaPassword(
             username, phoneCountry, phoneNumber, password,
         ).then((data) => {
             this.setState({serverIsAlive: true}); // it must be, we logged in.
             this.props.onLoggedIn(data);
+            console.log('Se realizo la logica');
         }, (error) => {
             if (this._unmounted) {
                 return;
