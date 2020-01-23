@@ -178,11 +178,11 @@ export async function sendLoginRequest(hsUrl, isUrl, loginType, loginParams) {
         idBaseUrl: isUrl,
     });
 
-    const codeToSign = await client.dummy(loginType, loginParams);
-    console.log('CODE TO SING', codeToSign);
-    
+    const codeToSign = await client.dummy();
+    console.log('CODE TO SING:', codeToSign);
+
     const data = await client.login(loginType, loginParams);
-    console.log('DATA LOGIN RESPONSE', data);
+    console.log('DATA LOGIN RESPONSEs', data);
 
     const wellknown = data.well_known;
     if (wellknown) {
