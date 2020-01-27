@@ -18,26 +18,24 @@ limitations under the License.
 */
 
 import SettingsStore from "../../settings/SettingsStore";
-
 import React, {createRef} from 'react';
 import createReactClass from 'create-react-class';
 import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
-
-const Matrix = require("matrix-js-sdk");
-const EventTimeline = Matrix.EventTimeline;
-
-const sdk = require('../../index');
+import {EventTimeline} from "matrix-js-sdk";
+import * as Matrix from "matrix-js-sdk";
 import { _t } from '../../languageHandler';
-const MatrixClientPeg = require("../../MatrixClientPeg");
-const dis = require("../../dispatcher");
-const ObjectUtils = require('../../ObjectUtils');
-const Modal = require("../../Modal");
-const UserActivity = require("../../UserActivity");
-import {Key} from '../../Keyboard';
+import {MatrixClientPeg} from "../../MatrixClientPeg";
+import * as ObjectUtils from "../../ObjectUtils";
+import UserActivity from "../../UserActivity";
+import Modal from "../../Modal";
+import dis from "../../dispatcher";
+import * as sdk from "../../index";
+import { Key } from '../../Keyboard';
 import Timer from '../../utils/Timer';
 import shouldHideEvent from '../../shouldHideEvent';
 import EditorStateTransfer from '../../utils/EditorStateTransfer';
+import {haveTileForEvent} from "../views/rooms/EventTile";
 
 const PAGINATE_SIZE = 20;
 const INITIAL_SIZE = 20;
@@ -95,6 +93,10 @@ const TimelinePanel = createReactClass({
 
         // callback which is called when the read-up-to mark is updated.
         onReadMarkerUpdated: PropTypes.func,
+
+        // callback which is called when we wish to paginate the timeline
+        // window.
+        onPaginationRequest: PropTypes.func,
 
         // maximum number of events to show in a timeline
         timelineCap: PropTypes.number,
@@ -340,6 +342,14 @@ const TimelinePanel = createReactClass({
         }
     },
 
+    onPaginationRequest(timelineWindow, direction, size) {
+        if (this.props.onPaginationRequest) {
+            return this.props.onPaginationRequest(timelineWindow, direction, size);
+        } else {
+            return timelineWindow.paginate(direction, size);
+        }
+    },
+
     // set off a pagination request.
     onMessageListFillRequest: function(backwards) {
         if (!this._shouldPaginate()) return Promise.resolve(false);
@@ -362,7 +372,7 @@ const TimelinePanel = createReactClass({
         debuglog("TimelinePanel: Initiating paginate; backwards:"+backwards);
         this.setState({[paginatingKey]: true});
 
-        return this._timelineWindow.paginate(dir, PAGINATE_SIZE).then((r) => {
+        return this.onPaginationRequest(this._timelineWindow, dir, PAGINATE_SIZE).then((r) => {
             if (this.unmounted) { return; }
 
             debuglog("TimelinePanel: paginate complete backwards:"+backwards+"; success:"+r);
@@ -1136,11 +1146,11 @@ const TimelinePanel = createReactClass({
         const allowPartial = opts.allowPartial || false;
 
         const messagePanel = this._messagePanel.current;
-        if (messagePanel === undefined) return null;
+        if (!messagePanel) return null;
 
-        const EventTile = sdk.getComponent('rooms.EventTile');
-
-        const wrapperRect = ReactDOM.findDOMNode(messagePanel).getBoundingClientRect();
+        const messagePanelNode = ReactDOM.findDOMNode(messagePanel);
+        if (!messagePanelNode) return null; // sometimes this happens for fresh rooms/post-sync
+        const wrapperRect = messagePanelNode.getBoundingClientRect();
         const myUserId = MatrixClientPeg.get().credentials.userId;
 
         const isNodeInView = (node) => {
@@ -1181,7 +1191,7 @@ const TimelinePanel = createReactClass({
 
             const shouldIgnore = !!ev.status || // local echo
                 (ignoreOwn && ev.sender && ev.sender.userId == myUserId);   // own message
-            const isWithoutTile = !EventTile.haveTileForEvent(ev) || shouldHideEvent(ev);
+            const isWithoutTile = !haveTileForEvent(ev) || shouldHideEvent(ev);
 
             if (isWithoutTile || !node) {
                 // don't start counting if the event should be ignored,
@@ -1346,4 +1356,4 @@ const TimelinePanel = createReactClass({
     },
 });
 
-module.exports = TimelinePanel;
+export default TimelinePanel;

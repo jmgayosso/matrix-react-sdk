@@ -16,13 +16,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from "react";
-import PropTypes from "prop-types";
-import classNames from "classnames";
-import sdk from "../../../index";
-import { _t } from "../../../languageHandler";
-import SdkConfig from "../../../SdkConfig";
-import { ValidatedServerConfig } from "../../../utils/AutoDiscoveryUtils";
+import React from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import * as sdk from '../../../index';
+import { _t } from '../../../languageHandler';
+import SdkConfig from '../../../SdkConfig';
+import {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 
 /**
  * A pure UI component which displays a username/password form.

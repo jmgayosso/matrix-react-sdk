@@ -18,9 +18,9 @@ limitations under the License.
 
 
 import React from 'react';
-import MatrixClientPeg from './MatrixClientPeg';
+import {MatrixClientPeg} from './MatrixClientPeg';
 import dis from './dispatcher';
-import sdk from './index';
+import * as sdk from './index';
 import {_t, _td} from './languageHandler';
 import Modal from './Modal';
 import MultiInviter from './utils/MultiInviter';
@@ -81,6 +81,8 @@ class Command {
     }
 
     run(roomId, args) {
+        // if it has no runFn then its an ignored/nop command (autocomplete only) e.g `/me`
+        if (!this.runFn) return;
         return this.runFn.bind(this)(roomId, args);
     }
 
@@ -780,54 +782,52 @@ export const CommandMap = {
                     const deviceId = matches[2];
                     const fingerprint = matches[3];
 
-                    return success(
-                        // Promise.resolve to handle transition from static result to promise; can be removed
-                        // in future
-                        Promise.resolve(cli.getStoredDevice(userId, deviceId)).then((device) => {
-                            if (!device) {
-                                throw new Error(_t('Unknown (user, device) pair:') + ` (${userId}, ${deviceId})`);
-                            }
+                    return success((async () => {
+                        const device = await cli.getStoredDevice(userId, deviceId);
+                        if (!device) {
+                            throw new Error(_t('Unknown (user, device) pair:') + ` (${userId}, ${deviceId})`);
+                        }
+                        const deviceTrust = await cli.checkDeviceTrust(userId, deviceId);
 
-                            if (device.isVerified()) {
-                                if (device.getFingerprint() === fingerprint) {
-                                    throw new Error(_t('Device already verified!'));
-                                } else {
-                                    throw new Error(_t('WARNING: Device already verified, but keys do NOT MATCH!'));
-                                }
+                        if (deviceTrust.isVerified()) {
+                            if (device.getFingerprint() === fingerprint) {
+                                throw new Error(_t('Device already verified!'));
+                            } else {
+                                throw new Error(_t('WARNING: Device already verified, but keys do NOT MATCH!'));
                             }
+                        }
 
-                            if (device.getFingerprint() !== fingerprint) {
-                                const fprint = device.getFingerprint();
-                                throw new Error(
-                                    _t('WARNING: KEY VERIFICATION FAILED! The signing key for %(userId)s and device' +
-                                        ' %(deviceId)s is "%(fprint)s" which does not match the provided key ' +
-                                        '"%(fingerprint)s". This could mean your communications are being intercepted!',
-                                        {
-                                            fprint,
-                                            userId,
-                                            deviceId,
-                                            fingerprint,
-                                        }));
-                            }
+                        if (device.getFingerprint() !== fingerprint) {
+                            const fprint = device.getFingerprint();
+                            throw new Error(
+                                _t('WARNING: KEY VERIFICATION FAILED! The signing key for %(userId)s and device' +
+                                    ' %(deviceId)s is "%(fprint)s" which does not match the provided key ' +
+                                    '"%(fingerprint)s". This could mean your communications are being intercepted!',
+                                    {
+                                        fprint,
+                                        userId,
+                                        deviceId,
+                                        fingerprint,
+                                    }));
+                        }
 
-                            return cli.setDeviceVerified(userId, deviceId, true);
-                        }).then(() => {
-                            // Tell the user we verified everything
-                            const InfoDialog = sdk.getComponent('dialogs.InfoDialog');
-                            Modal.createTrackedDialog('Slash Commands', 'Verified key', InfoDialog, {
-                                title: _t('Verified key'),
-                                description: <div>
-                                    <p>
-                                        {
-                                            _t('The signing key you provided matches the signing key you received ' +
-                                                'from %(userId)s\'s device %(deviceId)s. Device marked as verified.',
-                                                {userId, deviceId})
-                                        }
-                                    </p>
-                                </div>,
-                            });
-                        }),
-                    );
+                        await cli.setDeviceVerified(userId, deviceId, true);
+
+                        // Tell the user we verified everything
+                        const InfoDialog = sdk.getComponent('dialogs.InfoDialog');
+                        Modal.createTrackedDialog('Slash Commands', 'Verified key', InfoDialog, {
+                            title: _t('Verified key'),
+                            description: <div>
+                                <p>
+                                    {
+                                        _t('The signing key you provided matches the signing key you received ' +
+                                            'from %(userId)s\'s device %(deviceId)s. Device marked as verified.',
+                                            {userId, deviceId})
+                                    }
+                                </p>
+                            </div>,
+                        });
+                    })());
                 }
             }
             return reject(this.getUsage());
@@ -907,25 +907,25 @@ const aliases = {
 
 
 /**
- * Process the given text for /commands and perform them.
+ * Process the given text for /commands and return a bound method to perform them.
  * @param {string} roomId The room in which the command was performed.
  * @param {string} input The raw text input by the user.
- * @return {Object|null} An object with the property 'error' if there was an error
+ * @return {null|function(): Object} Function returning an object with the property 'error' if there was an error
  * processing the command, or 'promise' if a request was sent out.
  * Returns null if the input didn't match a command.
  */
-export function processCommandInput(roomId, input) {
+export function getCommand(roomId, input) {
     // trim any trailing whitespace, as it can confuse the parser for
     // IRC-style commands
     input = input.replace(/\s+$/, '');
     if (input[0] !== '/') return null; // not a command
 
-    const bits = input.match(/^(\S+?)( +((.|\n)*))?$/);
+    const bits = input.match(/^(\S+?)(?: +((.|\n)*))?$/);
     let cmd;
     let args;
     if (bits) {
         cmd = bits[1].substring(1).toLowerCase();
-        args = bits[3];
+        args = bits[2];
     } else {
         cmd = input;
     }
@@ -934,11 +934,6 @@ export function processCommandInput(roomId, input) {
         cmd = aliases[cmd];
     }
     if (CommandMap[cmd]) {
-        // if it has no runFn then its an ignored/nop command (autocomplete only) e.g `/me`
-        if (!CommandMap[cmd].runFn) return null;
-
-        return CommandMap[cmd].run(roomId, args);
-    } else {
-        return reject(_t('Unrecognised command:') + ' ' + input);
+        return () => CommandMap[cmd].run(roomId, args);
     }
 }

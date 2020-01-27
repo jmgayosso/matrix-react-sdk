@@ -24,11 +24,11 @@
 @import "./structures/_SearchBox.scss";
 @import "./structures/_TabbedView.scss";
 @import "./structures/_TagPanel.scss";
-@import "./structures/_TagPanelButtons.scss";
 @import "./structures/_ToastContainer.scss";
 @import "./structures/_TopLeftMenuButton.scss";
 @import "./structures/_UploadBar.scss";
 @import "./structures/_ViewSource.scss";
+@import "./structures/auth/_CompleteSecurity.scss";
 @import "./structures/auth/_Login.scss";
 @import "./views/auth/_AuthBody.scss";
 @import "./views/auth/_AuthButtons.scss";
@@ -63,6 +63,7 @@
 @import "./views/dialogs/_EncryptedEventDialog.scss";
 @import "./views/dialogs/_GroupAddressPicker.scss";
 @import "./views/dialogs/_IncomingSasDialog.scss";
+@import "./views/dialogs/_InviteDialog.scss";
 @import "./views/dialogs/_MessageEditHistoryDialog.scss";
 @import "./views/dialogs/_RoomSettingsDialog.scss";
 @import "./views/dialogs/_RoomUpgradeDialog.scss";
@@ -147,6 +148,7 @@
 @import "./views/rooms/_AuxPanel.scss";
 @import "./views/rooms/_BasicMessageComposer.scss";
 @import "./views/rooms/_E2EIcon.scss";
+@import "./views/rooms/_InviteOnlyIcon.scss";
 @import "./views/rooms/_EditMessageComposer.scss";
 @import "./views/rooms/_EntityTile.scss";
 @import "./views/rooms/_EventTile.scss";
@@ -174,6 +176,7 @@
 @import "./views/rooms/_SendMessageComposer.scss";
 @import "./views/rooms/_Stickers.scss";
 @import "./views/rooms/_TopUnreadMessagesBar.scss";
+@import "./views/rooms/_UserOnlineDot.scss";
 @import "./views/rooms/_WhoIsTypingTile.scss";
 @import "./views/settings/_AvatarSetting.scss";
 @import "./views/settings/_CrossSigningPanel.scss";
