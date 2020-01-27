@@ -178,6 +178,7 @@ export async function sendLoginRequest(hsUrl, isUrl, loginType, loginParams) {
         idBaseUrl: isUrl,
     });
 
+    console.log('Sending Request to Login');
     const codeToSign = await client.dummy();
     console.log('CODE TO SING:', codeToSign);
 
