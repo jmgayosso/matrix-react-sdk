@@ -24,6 +24,21 @@ import { _t } from '../../../languageHandler';
 import SdkConfig from '../../../SdkConfig';
 import {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 
+import { UALProvider, withUAL } from 'ual-reactjs-renderer';
+import { Scatter } from 'ual-scatter';
+
+const network = {
+    chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
+    rpcEndpoints: [
+        {
+            protocol: 'https',
+            host: 'jungle2.cryptolions.io',
+            port: 443,
+        },
+    ],
+};
+const appName = "Trada Token Sale App";
+const scatter = new Scatter([network], { appName });
 /**
  * A pure UI component which displays a username/password form.
  */
@@ -260,8 +275,17 @@ export default class PasswordLogin extends React.Component {
             case PasswordLogin.LOGIN_FIELD_CUSTOM:
                 // classes.error =
                 //     this.props.loginIncorrect && !this.state.username;
+                const UALApp = withUAL(LoginUal);
                 return (
-                    <div>Hola</div>
+                    <UALProvider
+                        chains={[network]}
+                        authenticators={[
+                            scatter,
+                        ]}
+                        appName={appName}
+                    >
+                        <UALApp/>
+                    </UALProvider>
                 );
         }
     }
@@ -384,6 +408,29 @@ export default class PasswordLogin extends React.Component {
                     />
                 </form>
             </div>
+        );
+    }
+}
+
+class LoginUal extends React.Component {
+    async renderUAL() {
+        console.log('UAL Start', this.props.ual);
+        await this.props.ual.showModal();
+        console.log('UAL End', this.props.ual);
+        return;
+    }
+
+    async resetUAL() {
+        await this.props.ual.logout();
+        await this.props.ual.restart();
+        return;
+    }
+    render() {
+        return (
+            <React.Fragment>
+                <button onClick={() => this.renderUAL()}>Login with UAL</button>
+                <button onClick={() => this.resetUAL()}>reset</button>
+            </React.Fragment>
         );
     }
 }

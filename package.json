@@ -95,6 +95,8 @@
     "resize-observer-polyfill": "^1.5.0",
     "sanitize-html": "^1.18.4",
     "text-encoding-utf-8": "^1.0.1",
+    "ual-reactjs-renderer": "^0.1.7",
+    "ual-scatter": "^0.1.8",
     "url": "^0.11.0",
     "velocity-animate": "^1.5.2",
     "what-input": "^5.2.6",
