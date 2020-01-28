@@ -28,11 +28,11 @@ import { UALProvider, withUAL } from 'ual-reactjs-renderer';
 import { Scatter } from 'ual-scatter';
 
 const network = {
-    chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
+    chainId: '1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f',
     rpcEndpoints: [
         {
             protocol: 'https',
-            host: 'jungle2.cryptolions.io',
+            host: 'test.telos.kitchen',
             port: 443,
         },
     ],
@@ -412,12 +412,30 @@ export default class PasswordLogin extends React.Component {
     }
 }
 
+import AuthApi from '../../../ual/AuthApi';
+
 class LoginUal extends React.Component {
+    async componentDidUpdate(prevProps) {
+        try {
+            if (this.props.ual.activeUser !== prevProps.ual.activeUser) {
+                console.log('Ual respondio');
+                const mAuth = new AuthApi(this.props.ual.activeUser);
+                console.log('mAuth', mAuth);
+                await mAuth.signIn();
+                console.log('Logeando');
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     async renderUAL() {
-        console.log('UAL Start', this.props.ual);
-        await this.props.ual.showModal();
-        console.log('UAL End', this.props.ual);
-        return;
+        try {
+            console.log('UAL Start', this.props.ual);
+            await this.props.ual.showModal();
+        } catch (e) {
+            console.log('error rua', e);
+        }
     }
 
     async resetUAL() {
