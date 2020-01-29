@@ -63,7 +63,7 @@ export default class PasswordLogin extends React.Component {
         initialPhoneNumber: "",
         initialPassword: "",
         loginIncorrect: false,
-        disableSubmit: false
+        disableSubmit: false,
     };
 
     static LOGIN_FIELD_EMAIL = "login_field_email";
@@ -94,13 +94,24 @@ export default class PasswordLogin extends React.Component {
         this.isLoginEmpty = this.isLoginEmpty.bind(this);
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.loginType === PasswordLogin.LOGIN_FIELD_CUSTOM) {
+            console.log('Listening changes NEW', this.state.ualRef);
+            console.log('Listening changes OLD', prevState.ualRef);
+            if (this.prevState !== null && this.state.ualRef !== null && this.state.ualRef !== prevState.ualRef && this.state.ualRef.props.ual.activeUser) {
+                // console.log(`Se logueo ${this.state.ualRef.ual.activeUser.accountName}`);
+                console.log('Update PATERN');
+            }
+        }
+    }
+
     onForgotPasswordClick(ev) {
         ev.preventDefault();
         ev.stopPropagation();
         this.props.onForgotPasswordClick();
     }
 
-    onSubmitForm(ev) {
+    async onSubmitForm(ev) {
         ev.preventDefault();
 
         let username = ""; // XXX: Synapse breaks if you send null here:
@@ -143,7 +154,8 @@ export default class PasswordLogin extends React.Component {
         if (PasswordLogin.LOGIN_FIELD_CUSTOM) {
             console.log('Tratando de loguear con UAL');
             console.log('UAL Component r', this.state.ualRef);
-            this.state.ualRef.renderUAL();
+            const successLogedUAL = await this.state.ualRef.renderUAL();
+            console.log('succesLogedUAL', successLogedUAL);
             return;
         }
 
@@ -293,21 +305,28 @@ export default class PasswordLogin extends React.Component {
                         appName={appName}
                     >
                         <UALApp
-                            refUAL = { ref => this.state.ualRef = ref}
-                            getUAL={(e) => this.getUAL(e)}
-                            loginWithUAL={e => this.loginWithUal(e)}
+                            refUAL = { ref => this.setFirstUal(ref)}
+                            updateUAL = { ref => this.updateRefUAL(ref)}
                         />
                     </UALProvider>
                 );
         }
     }
 
-    getUAL = (ual) => {
-        console.log('getUAL', ual);
+    setFirstUal = (newUAL) => {
+        if (this.state.ualRef !== null) return;
+        this.setState({
+            ...this.state,
+            ualRef: newUAL,
+        });
     }
 
-    getUAL = (ual) => {
-        console.log('getUAL', ual);
+    updateRefUAL = (newUAL) => {
+        console.log('Se actualizara la referencia del ual');
+        this.setState({
+            ...this.state,
+            ualRef: newUAL,
+        });
     }
 
     isLoginEmpty() {
@@ -440,38 +459,56 @@ class LoginUal extends React.Component {
         refUAL(this);
         console.log('Se referencio el componente UAL');
     }
+
     async componentDidUpdate(prevProps) {
         try {
+            const {updateUAL} = this.props;
             if (this.props.ual.activeUser !== prevProps.ual.activeUser && this.props.ual.activeUser !== null) {
                 console.log('Ual respondio');
-                const mAuth = new AuthApi(this.props.ual.activeUser);
-                console.log('mAuth', mAuth);
-                const mCode = await mAuth.signIn();
-                console.log('Logeando', mCode);
-                const {getUAL} = this.props;
-                getUAL(this.props.ual);
+                updateUAL(this);
             }
         } catch (e) {
             console.log(e);
         }
     }
 
-    async renderUAL() {
+    async SignContract() {
+        let success = false;
         try {
-            console.log('UAL Start', this.props.ual);
-            await this.props.ual.showModal();
+            const mAuth = new AuthApi(this.props.ual.activeUser);
+            console.log('mAuth', mAuth);
+            await mAuth.signIn();
+            success = true;
         } catch (e) {
-            console.log('error rua', e);
+            console.log(e);
+        } finally {
+            return success;
         }
     }
 
-    async resetUAL() {
-        await this.props.ual.restart();
+    renderUAL() {
+        let success = false;
+        try {
+            console.log('UAL Start', this.props.ual);
+            this.props.ual.showModal();
+            success = true;
+        } catch (e) {
+            console.log('error rua', e);
+        } finally {
+           return success;
+        }
     }
 
-    async logoutUAL() {
-        await this.props.ual.logout();
+    resetUAL() {
+        this.props.ual.restart();
     }
+
+    logoutUAL() {
+         const {updateUAL} = this.props;
+         this.props.ual.logout();
+         updateUAL(this);
+    }
+
     render() {
         return (
             <React.Fragment>
