@@ -27,18 +27,6 @@ import {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 import { UALProvider, withUAL } from 'ual-reactjs-renderer';
 import { Scatter } from 'ual-scatter';
 
-const network = {
-    chainId: '1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f',
-    rpcEndpoints: [
-        {
-            protocol: 'https',
-            host: 'test.telos.kitchen',
-            port: 443,
-        },
-    ],
-};
-const appName = "Trada Token Sale App";
-const scatter = new Scatter([network], { appName });
 /**
  * A pure UI component which displays a username/password form.
  */
@@ -275,10 +263,22 @@ export default class PasswordLogin extends React.Component {
             case PasswordLogin.LOGIN_FIELD_CUSTOM:
                 // classes.error =
                 //     this.props.loginIncorrect && !this.state.username;
+                const mnetwork = {
+                    chainId: '1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f',
+                    rpcEndpoints: [
+                        {
+                            protocol: 'https',
+                            host: 'test.telos.kitchen',
+                            port: 443,
+                        },
+                    ],
+                };
+                const appName = "Telos Net";
+                const scatter = new Scatter([mnetwork], { appName });
                 const UALApp = withUAL(LoginUal);
                 return (
                     <UALProvider
-                        chains={[network]}
+                        chains={[mnetwork]}
                         authenticators={[
                             scatter,
                         ]}
@@ -421,8 +421,8 @@ class LoginUal extends React.Component {
                 console.log('Ual respondio');
                 const mAuth = new AuthApi(this.props.ual.activeUser);
                 console.log('mAuth', mAuth);
-                await mAuth.signIn();
-                console.log('Logeando');
+                const mCode = await mAuth.signIn();
+                console.log('Logeando', mCode);
             }
         } catch (e) {
             console.log(e);
@@ -439,14 +439,20 @@ class LoginUal extends React.Component {
     }
 
     async resetUAL() {
-        await this.props.ual.logout();
         await this.props.ual.restart();
-        return;
+    }
+
+    async logoutUAL() {
+        await this.props.ual.logout();
     }
     render() {
         return (
             <React.Fragment>
+                {(this.props.ual.activeUser) &&
+                    <p>{this.props.ual.activeUser.accountName}</p>
+                }
                 <button onClick={() => this.renderUAL()}>Login with UAL</button>
+                <button onClick={() => this.logoutUAL()}>logout</button>
                 <button onClick={() => this.resetUAL()}>reset</button>
             </React.Fragment>
         );
