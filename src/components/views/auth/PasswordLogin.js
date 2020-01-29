@@ -78,7 +78,8 @@ export default class PasswordLogin extends React.Component {
             password: this.props.initialPassword,
             phoneCountry: this.props.initialPhoneCountry,
             phoneNumber: this.props.initialPhoneNumber,
-            loginType: PasswordLogin.LOGIN_FIELD_MXID
+            loginType: PasswordLogin.LOGIN_FIELD_MXID,
+            ualRef: null,
         };
 
         this.onForgotPasswordClick = this.onForgotPasswordClick.bind(this);
@@ -141,6 +142,8 @@ export default class PasswordLogin extends React.Component {
 
         if (PasswordLogin.LOGIN_FIELD_CUSTOM) {
             console.log('Tratando de loguear con UAL');
+            console.log('UAL Component r', this.state.ualRef);
+            this.state.ualRef.renderUAL();
             return;
         }
 
@@ -289,10 +292,22 @@ export default class PasswordLogin extends React.Component {
                         ]}
                         appName={appName}
                     >
-                        <UALApp/>
+                        <UALApp
+                            refUAL = { ref => this.state.ualRef = ref}
+                            getUAL={(e) => this.getUAL(e)}
+                            loginWithUAL={e => this.loginWithUal(e)}
+                        />
                     </UALProvider>
                 );
         }
+    }
+
+    getUAL = (ual) => {
+        console.log('getUAL', ual);
+    }
+
+    getUAL = (ual) => {
+        console.log('getUAL', ual);
     }
 
     isLoginEmpty() {
@@ -420,6 +435,11 @@ export default class PasswordLogin extends React.Component {
 import AuthApi from '../../../ual/AuthApi';
 
 class LoginUal extends React.Component {
+    componentDidMount() {
+        const {refUAL} = this.props;
+        refUAL(this);
+        console.log('Se referencio el componente UAL');
+    }
     async componentDidUpdate(prevProps) {
         try {
             if (this.props.ual.activeUser !== prevProps.ual.activeUser && this.props.ual.activeUser !== null) {
@@ -428,6 +448,8 @@ class LoginUal extends React.Component {
                 console.log('mAuth', mAuth);
                 const mCode = await mAuth.signIn();
                 console.log('Logeando', mCode);
+                const {getUAL} = this.props;
+                getUAL(this.props.ual);
             }
         } catch (e) {
             console.log(e);
