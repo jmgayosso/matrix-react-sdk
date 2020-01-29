@@ -139,6 +139,11 @@ export default class PasswordLogin extends React.Component {
             return;
         }
 
+        if (PasswordLogin.LOGIN_FIELD_CUSTOM) {
+            console.log('Tratando de loguear con UAL');
+            return;
+        }
+
         this.props.onSubmit(
             username,
             phoneCountry,
@@ -417,7 +422,7 @@ import AuthApi from '../../../ual/AuthApi';
 class LoginUal extends React.Component {
     async componentDidUpdate(prevProps) {
         try {
-            if (this.props.ual.activeUser !== prevProps.ual.activeUser) {
+            if (this.props.ual.activeUser !== prevProps.ual.activeUser && this.props.ual.activeUser !== null) {
                 console.log('Ual respondio');
                 const mAuth = new AuthApi(this.props.ual.activeUser);
                 console.log('mAuth', mAuth);
@@ -451,9 +456,9 @@ class LoginUal extends React.Component {
                 {(this.props.ual.activeUser) &&
                     <p>{this.props.ual.activeUser.accountName}</p>
                 }
-                <button onClick={() => this.renderUAL()}>Login with UAL</button>
-                <button onClick={() => this.logoutUAL()}>logout</button>
-                <button onClick={() => this.resetUAL()}>reset</button>
+                <button type="button" onClick={() => this.renderUAL()}>Login with UAL</button>
+                <button type="button" onClick={() => this.logoutUAL()}>logout</button>
+                <button type="button" onClick={() => this.resetUAL()}>reset</button>
             </React.Fragment>
         );
     }
