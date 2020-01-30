@@ -584,11 +584,15 @@ export default createReactClass({
         );
     },
 
-    _getCodeToSign: function() {
-        this._loginLogic.getCodeToSignUAL(
-        ).then((data) => {
-            console.log('Se obtuvo el codigo para firmar el UAL', data);
-        });
+    _getCodeToSign: async function() {
+        try {
+            const code = await this._loginLogic.getCodeToSignUAL();
+            console.log('_getCodeToSign', code);
+            return code;
+        } catch (e) {
+            console.log(e);
+            return e;
+        }
     },
 
     _renderSsoStep: function(url) {

@@ -96,7 +96,7 @@ export default class PasswordLogin extends React.Component {
         this.isLoginEmpty = this.isLoginEmpty.bind(this);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    async componentDidUpdate(prevProps, prevState) {
         if (this.state.loginType === PasswordLogin.LOGIN_FIELD_CUSTOM) {
             if (this.state.ualRef === null || prevState.ualRef === null) return;
             console.log('Listening changes NEW', this.state.ualRef.props.ual);
@@ -104,7 +104,8 @@ export default class PasswordLogin extends React.Component {
             if (this.state.ualRef.props && this.state.ualRef.props.ual !== prevState.ualRef.props.ual && this.state.ualRef.props.ual.activeUser !== null) {
                 // console.log(`Se logueo ${this.state.ualRef.ual.activeUser.accountName}`);
                 console.log('Update PATERN');
-                this.props.getCodeToSign();
+                const code = await this.props.getCodeToSign();
+                console.log('code p', code);
             }
         }
     }
@@ -155,11 +156,9 @@ export default class PasswordLogin extends React.Component {
             return;
         }
 
-        if (PasswordLogin.LOGIN_FIELD_CUSTOM) {
-            console.log('Tratando de loguear con UAL');
-            console.log('UAL Component r', this.state.ualRef);
-            const successLogedUAL = await this.state.ualRef.renderUAL();
-            console.log('succesLogedUAL', successLogedUAL);
+        if (this.state.loginType === PasswordLogin.LOGIN_FIELD_CUSTOM) {
+            console.log('Tratando de loguear con UAL', this.state.ualRef);
+            await this.state.ualRef.renderUAL();
             return;
         }
 
