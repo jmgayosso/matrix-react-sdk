@@ -579,8 +579,16 @@ export default createReactClass({
                loginIncorrect={this.state.loginIncorrect}
                serverConfig={this.props.serverConfig}
                disableSubmit={this.isBusy()}
+               getCodeToSign={this._getCodeToSign}
             />
         );
+    },
+
+    _getCodeToSign: function() {
+        this._loginLogic.getCodeToSignUAL(
+        ).then((data) => {
+            console.log('Se obtuvo el codigo para firmar el UAL', data);
+        });
     },
 
     _renderSsoStep: function(url) {

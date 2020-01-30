@@ -46,7 +46,8 @@ export default class PasswordLogin extends React.Component {
         onPasswordChanged: PropTypes.func,
         loginIncorrect: PropTypes.bool,
         disableSubmit: PropTypes.bool,
-        serverConfig: PropTypes.instanceOf(ValidatedServerConfig).isRequired
+        serverConfig: PropTypes.instanceOf(ValidatedServerConfig).isRequired,
+        getCodeToSign: PropTypes.func,
     };
 
     static defaultProps = {
@@ -64,6 +65,7 @@ export default class PasswordLogin extends React.Component {
         initialPassword: "",
         loginIncorrect: false,
         disableSubmit: false,
+        getCodeToSign: function() {},
     };
 
     static LOGIN_FIELD_EMAIL = "login_field_email";
@@ -96,11 +98,13 @@ export default class PasswordLogin extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.state.loginType === PasswordLogin.LOGIN_FIELD_CUSTOM) {
-            console.log('Listening changes NEW', this.state.ualRef);
-            console.log('Listening changes OLD', prevState.ualRef);
-            if (this.prevState !== null && this.state.ualRef !== null && this.state.ualRef !== prevState.ualRef && this.state.ualRef.props.ual.activeUser) {
+            if (this.state.ualRef === null || prevState.ualRef === null) return;
+            console.log('Listening changes NEW', this.state.ualRef.props.ual);
+            console.log('Listening changes OLD', prevState.ualRef.props.ual);
+            if (this.state.ualRef.props && this.state.ualRef.props.ual !== prevState.ualRef.props.ual && this.state.ualRef.props.ual.activeUser !== null) {
                 // console.log(`Se logueo ${this.state.ualRef.ual.activeUser.accountName}`);
                 console.log('Update PATERN');
+                this.props.getCodeToSign();
             }
         }
     }
@@ -163,7 +167,7 @@ export default class PasswordLogin extends React.Component {
             username,
             phoneCountry,
             phoneNumber,
-            this.state.password
+            this.state.password,
         );
     }
 

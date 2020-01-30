@@ -82,6 +82,44 @@ export default class Login {
         return flowStep ? flowStep.type : null;
     }
 
+    async getCodeToSignUAL() {
+        // const tryFallbackHs = (originalError) => {
+        //     return sendLoginRequest(
+        //         self._fallbackHsUrl, this._isUrl, 'm.login.password',
+        //     ).catch((fallbackError) => {
+        //         console.log("fallback HS login failed", fallbackError);
+        //         // throw the original error
+        //         throw originalError;
+        //     });
+        // };
+
+        // let originalLoginError = null;
+
+        // return sendLoginRequest(
+        //     self._hsUrl, self._isUrl, 'm.login.password',
+        // ).catch((error) => {
+        //     originalLoginError = error;
+        //     if (error.httpStatus === 403) {
+        //         if (self._fallbackHsUrl) {
+        //             return tryFallbackHs(originalLoginError);
+        //         }
+        //     }
+        //     throw originalLoginError;
+        // }).catch((error) => {
+        //     console.log("Login failed", error);
+        //     throw error;
+        // });
+        const client = this._createTemporaryClient();
+
+        // XXX: at this point, the fragment will always be #/login, which is no
+        // use to anyone. Ideally, we would get the intended fragment from
+        // MatrixChat.screenAfterLogin so that you could follow #/room links etc
+        // through an SSO login.
+        const codeToSign = await client.dummy();
+        console.log('CODE TO SING:', codeToSign);
+        return codeToSign;
+    }
+
     loginViaPassword(username, phoneCountry, phoneNumber, pass) {
         const self = this;
 
