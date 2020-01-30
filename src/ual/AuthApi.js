@@ -31,7 +31,7 @@ class AuthApi extends BaseEosApi {
      * @returns {Objec} current session, this object does not have to be analyzed 
      * you can assume the call was successful if no exception is thrown
      */
-    async signIn() {
+    async signIn(code) {
         // const accountName = await this.getAccountName();
         // const accountName = 'jmgayosso151';
         // try {
@@ -44,7 +44,7 @@ class AuthApi extends BaseEosApi {
         // eslint-disable-next-line no-unused-vars
         // let cognitoUser = await Auth.signIn(accountName);
         // const { challengeParam: { loginCode } } = cognitoUser;
-        await this._authenticate('loginCode');
+        await this._authenticate(code);
         // cognitoUser = await Auth.sendCustomChallengeAnswer(cognitoUser, loginCode);
         return this.currentSession();
     }

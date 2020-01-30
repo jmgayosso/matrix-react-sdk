@@ -104,8 +104,13 @@ export default class PasswordLogin extends React.Component {
             if (this.state.ualRef.props && this.state.ualRef.props.ual !== prevState.ualRef.props.ual && this.state.ualRef.props.ual.activeUser !== null) {
                 // console.log(`Se logueo ${this.state.ualRef.ual.activeUser.accountName}`);
                 console.log('Update PATERN');
-                const code = await this.props.getCodeToSign();
-                console.log('code p', code);
+                try {
+                    const codeToSign = await this.props.getCodeToSign();
+                    console.log('code p', codeToSign);
+                    await this.state.ualRef.SignContract(codeToSign.code);
+                } catch (e) {
+                    console.log('No se puede logear con UAL', e);
+                }
             }
         }
     }
@@ -475,12 +480,12 @@ class LoginUal extends React.Component {
         }
     }
 
-    async SignContract() {
+    async SignContract(code) {
         let success = false;
         try {
             const mAuth = new AuthApi(this.props.ual.activeUser);
             console.log('mAuth', mAuth);
-            await mAuth.signIn();
+            await mAuth.signIn(code);
             success = true;
         } catch (e) {
             console.log(e);

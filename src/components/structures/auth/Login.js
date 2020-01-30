@@ -587,11 +587,10 @@ export default createReactClass({
     _getCodeToSign: async function() {
         try {
             const code = await this._loginLogic.getCodeToSignUAL();
-            console.log('_getCodeToSign', code);
             return code;
         } catch (e) {
             console.log(e);
-            return e;
+            throw e;
         }
     },
 
