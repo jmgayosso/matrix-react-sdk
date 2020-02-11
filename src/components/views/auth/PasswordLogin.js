@@ -151,19 +151,21 @@ export default class PasswordLogin extends React.Component {
                 break;
         }
 
-        if (error) {
-            this.props.onError(error);
-            return;
-        }
-
-        if (!this.state.password) {
-            this.props.onError(_t("The password field must not be blank."));
-            return;
-        }
-
         if (this.state.loginType === PasswordLogin.LOGIN_FIELD_CUSTOM) {
             console.log('Tratando de loguear con UAL', this.state.ualRef);
             await this.state.ualRef.renderUAL();
+            return;
+        }
+
+        if (error) {
+            console.log('error 1')
+            this.props.onError(error);
+            return;
+        }
+        
+        if (!this.state.password) {
+            console.log('error 2')
+            this.props.onError(_t("The password field must not be blank."));
             return;
         }
 
@@ -487,10 +489,9 @@ class LoginUal extends React.Component {
             console.log('mAuth', mAuth);
             await mAuth.signIn(code);
             success = true;
-        } catch (e) {
-            console.log(e);
-        } finally {
             return success;
+        } catch (e) {
+            throw new Error(e);
         }
     }
 

@@ -189,8 +189,8 @@ export async function sendLoginRequest(hsUrl, isUrl, loginType, loginParams) {
     });
 
     console.log('Sending Request to Login');
-    const codeToSign = await client.dummy();
-    console.log('CODE TO SING:', codeToSign);
+    // const codeToSign = await client.dummy();
+    // console.log('CODE TO SING:', codeToSign);
 
     const data = await client.login(loginType, loginParams);
     console.log('DATA LOGIN RESPONSEs', data);

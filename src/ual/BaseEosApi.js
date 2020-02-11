@@ -22,7 +22,8 @@ class BaseEosApi extends BaseApi {
             );
         } catch (err) {
             // throw new DeepError(err);
-            console.log('UALLLLLLL ERRROR', err)
+            throw new Error(err);
+            // console.log('UALLLLLLL ERRROR', err)
         }
     }
 
