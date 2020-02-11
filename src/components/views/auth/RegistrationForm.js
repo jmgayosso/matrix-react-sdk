@@ -79,6 +79,7 @@ export default createReactClass({
             passwordConfirm: "",
             passwordComplexity: null,
             passwordSafe: false,
+            isSSO: false,
         };
     },
 
@@ -547,6 +548,39 @@ export default createReactClass({
         />;
     },
 
+    updateSSORegister() {
+        this.setState({
+            isSSO: !this.state.isSSO,
+        });
+        console.log(this.state);
+    },
+
+    renderToggleSSO() {
+        if(this.state.isSSO) {
+            return (
+                <a
+                href="#"
+                className="toggle"
+                onClick={() => this.updateSSORegister()}
+                >
+                    Sign up with password
+                </a>
+            )
+        }
+        else {
+            return(
+            <a
+            href="#"
+            className="toggle"
+            onClick={() => this.updateSSORegister()}
+             >
+                Sign up with EOS account
+            </a>
+            )
+        }
+
+    },
+
     render: function() {
         let yourMatrixAccountText = _t('Create your Matrix account on %(serverName)s', {
             serverName: this.props.serverConfig.hsName,
@@ -630,6 +664,7 @@ export default createReactClass({
                     { noIsText }
                     { registerButton }
                 </form>
+                    {this.renderToggleSSO()}
             </div>
         );
     },

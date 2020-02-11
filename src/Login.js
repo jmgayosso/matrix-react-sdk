@@ -92,9 +92,25 @@ export default class Login {
         }
     }
 
-    loginViaPassword(username, phoneCountry, phoneNumber, pass) {
+    /**
+     * @Modified by MW to login with eos Account
+     * @param {*} username 
+     * @param {*} phoneCountry 
+     * @param {*} phoneNumber 
+     * @param {*} pass 
+     * @param {*} isEosLogin 
+     */
+    loginViaLocal(username, phoneCountry, phoneNumber, pass, isEosLogin) {
         const self = this;
+        let customTypeLogin;
 
+        if (isEosLogin) {
+            customTypeLogin = "m.login.eos";
+        } else {
+            customTypeLogin = "m.login.password";
+        }
+
+        console.log('customTypeLogin:', customTypeLogin);
         const isEmail = username.indexOf("@") > 0;
 
         let identifier;
@@ -126,7 +142,7 @@ export default class Login {
         
         const tryFallbackHs = (originalError) => {
             return sendLoginRequest(
-                self._fallbackHsUrl, this._isUrl, 'm.login.password', loginParams,
+                self._fallbackHsUrl, this._isUrl, customTypeLogin, loginParams,
             ).catch((fallbackError) => {
                 console.log("fallback HS login failed", fallbackError);
                 // throw the original error
@@ -139,7 +155,7 @@ export default class Login {
 
         let originalLoginError = null;
         return sendLoginRequest(
-            self._hsUrl, self._isUrl, 'm.login.password', loginParams,
+            self._hsUrl, self._isUrl, customTypeLogin, loginParams,
         ).catch((error) => {
             originalLoginError = error;
             if (error.httpStatus === 403) {

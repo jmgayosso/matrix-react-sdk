@@ -103,6 +103,7 @@ export default createReactClass({
             serverIsAlive: true,
             serverErrorIsFatal: false,
             serverDeadError: "",
+            isEosAccount: false,
         };
     },
 
@@ -145,7 +146,11 @@ export default createReactClass({
         return this.state.busy || this.props.busy;
     },
 
-    onPasswordLogin: async function(username, phoneCountry, phoneNumber, password) {
+    onPasswordLogin: async function(username, phoneCountry, phoneNumber, password, isEosLogin) {
+        console.log('username', username);
+        console.log('phoneCountry', phoneCountry);
+        console.log('phoneNumber', phoneNumber);
+        console.log('password', password);
         if (!this.state.serverIsAlive) {
             this.setState({busy: true});
             // Do a quick liveliness check on the URLs
@@ -178,8 +183,8 @@ export default createReactClass({
         });
 
         console.log('Logeando Logica');
-        this._loginLogic.loginViaPassword(
-            username, phoneCountry, phoneNumber, password,
+        this._loginLogic.loginViaLocal(
+            username, phoneCountry, phoneNumber, password, isEosLogin,
         ).then((data) => {
             this.setState({serverIsAlive: true}); // it must be, we logged in.
             this.props.onLoggedIn(data);

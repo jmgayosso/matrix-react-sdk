@@ -42,6 +42,13 @@ limitations under the License.
         @mixin mx_Dialog_link;
     }
 
+    a.toggle {
+        text-align: center;
+        display: block;
+        color: orange;
+        padding-bottom: 10px;
+    }
+
     input[type=text],
     input[type=password] {
         color: $authpage-primary-color;
@@ -120,6 +127,12 @@ limitations under the License.
 
 .mx_AuthBody_fieldRow > .mx_Field:last-child {
     margin-right: 0;
+}
+
+.mx_AuthBody_toggle {
+    display: flex;
+    text-align: center;
+    color: blue;
 }
 
 .mx_AuthBody_changeFlow {
