@@ -238,7 +238,10 @@ export default createReactClass({
                             </div>
                         </div>
                     );
-                } else {
+                } else if (error.errcode === 'M_USER_NOT_REGISTERED') {
+                    errorText = _t('User not registered');
+                }
+                else {
                     errorText = _t('Incorrect username and/or password.');
                 }
             } else {
